@@ -71,10 +71,7 @@ spec:
          endpoint: DT_URL_TO_REPLACE/api/v2/metrics/ingest
          # Token must at least have the Ingest metrics (metrics.ingest) permission
          api_token: "DT_TOKEN_TO_REPLACE"
-      otlp:
-        endpoint: TEMPO_TO_REPLACE.tempo.svc:4317
-        tls:
-          insecure: true
+
 
       prometheus:
         endpoint: "0.0.0.0:9090"
@@ -89,7 +86,7 @@ spec:
         traces:
           receivers: [otlp,zipkin]
           processors: [memory_limiter,k8sattributes,spanmetrics,batch]
-          exporters: [otlp]
+          exporters: [otlphttp]
         metrics:
           receivers: [otlp]
           processors: [memory_limiter,k8sattributes,batch]

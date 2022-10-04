@@ -62,8 +62,8 @@ spec:
   namespaceSelector:
      matchExpressions:
      - key: app
-        operator: NotIn
-        values: [nodynatrace]
+       operator: NotIn
+       values: [nodynatrace]
 
   # Configuration for OneAgent instances
   #
@@ -204,10 +204,10 @@ spec:
     #
     resources:
       requests:
-        cpu: 500m
+        cpu: 300m
         memory: 512Mi
       limits:
-        cpu: 800mkubec
+        cpu: 800m
         memory: 1Gi
 
     # Optional: Sets a node selector to control on which nodes the ActiveGate will be deployed.

@@ -36,23 +36,18 @@ while [ $# -gt 0 ]; do
   case "$1" in
   --dttoken)
     DTTOKEN="$2"
-    shift 2
     ;;
   --dturl)
     DTURL="$2"
-    shift 2
     ;;
   --paastoken)
     DTPAASTOKEN="$2"
-    shift 2
     ;;
   --clustername)
     CLUSTERNAME="$2"
-    shift 2
     ;;
   --oteldemo_version)
     VERSION="$2"
-    shift 2
     ;;
   *)
     echo "Warning: skipping unsupported option: $1"
@@ -82,7 +77,7 @@ if [ -z "$DTTOKEN" ]; then
 fi
 
 if [ -z "$DTPAASTOKEN" ]; then
-  echo "Error: api-token not set!"
+  echo "Error: paas-token not set!"
   exit 1
 fi
 
@@ -149,7 +144,7 @@ kubectl -n dynatrace create secret generic dynakube --from-literal="apiToken=$DT
 #### Deploy deploy the Dynatrace operator
 kubectl apply -f https://github.com/Dynatrace/dynatrace-operator/releases/latest/download/kubernetes.yaml
 kubectl apply -f https://github.com/Dynatrace/dynatrace-operator/releases/latest/download/kubernetes-csi.yaml
-sed -i 's,TENANTURL_TOREPLACE,$DTURL,' dynatrace/dynakube.yaml
+sed -i "s,TENANTURL_TOREPLACE,$DTURL," dynatrace/dynakube.yaml
 kubectl apply -f dynatrace/dynakube.yaml
 
 #Deploy the OpenTelemetry Collector
