@@ -139,8 +139,10 @@ DYNATRACE_API_TOKEN=<YOUR TOKEN VALUE>
 ##### Token to ingest data
 Create a Dynatrace token with the following scope:
 * ingest metrics
+* ingest events  
 * ingest OpenTelemetry traces
 * ingest Logs
+* Data ingest, e.g.: metrics and events
 <p align="center"><img src="/image/data_ingest.png" width="40%" alt="data token" /></p>
 Save the value of the token . We will use it later to store in a k8S secret
 
