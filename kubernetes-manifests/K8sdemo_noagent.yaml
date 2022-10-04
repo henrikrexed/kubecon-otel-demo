@@ -1,0 +1,1255 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: emailservice-noagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-emailservice-noagent
+      app.kubernetes.io/component: emailservice-noagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-emailservice-noagent
+        app.kubernetes.io/component: emailservice-noagent
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: emailservice-noagent
+          image: otel/demo:VERSION_TO_REPLACE-emailservice
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_ENV
+              value: "production"
+            - name: EMAIL_SERVICE_PORT
+              value: '8080'
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name : OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4318"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: emailservice-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-emailservice-noagent
+    app.kubernetes.io/component: emailservice-noagent
+  ports:
+    - name: grpc
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkoutservice-noagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-checkoutservice-noagent
+      app.kubernetes.io/component: checkoutservice-noagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-checkoutservice-noagent
+        app.kubernetes.io/component: checkoutservice-noagent
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      containers:
+        - name: checkoutservice-noagent
+          image: otel/demo:VERSION_TO_REPLACE-checkoutservice
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: CHECKOUT_SERVICE_PORT
+              value: '8080'
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4317"
+            - name: PRODUCT_CATALOG_SERVICE_ADDR
+              value: "productcatalogservice-noagent:8080"
+            - name: SHIPPING_SERVICE_ADDR
+              value: "shippingservice-noagent:8080"
+            - name: PAYMENT_SERVICE_ADDR
+              value: "paymentservice-noagent:8080"
+            - name: EMAIL_SERVICE_ADDR
+              value: "http://emailservice-noagent:8080"
+            - name: CURRENCY_SERVICE_ADDR
+              value: "currencyservice-noagent:8080"
+            - name: CART_SERVICE_ADDR
+              value: "cartservice-noagent:8080"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: checkoutservice-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-checkoutservice-noagent
+    app.kubernetes.io/component: checkoutservice-noagent
+  ports:
+    - name: grpc
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendationservice-noagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-recommendationservice-noagent
+      app.kubernetes.io/component: recommendationservice-noagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-recommendationservice-noagent
+        app.kubernetes.io/component: recommendationservice-noagent
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: recommendationservice-noagent
+          image: otel/demo:VERSION_TO_REPLACE-recommendationservice
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: OTEL_PYTHON_LOG_CORRELATION
+              value: 'true'
+            - name: PRODUCT_CATALOG_SERVICE_ADDR
+              value: "productcatalogservice-noagent:8080"
+            - name: RECOMMENDATION_SERVICE_PORT
+              value: '8080'
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4317"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 220Mi
+            limits:
+              cpu: 200m
+              memory: 450Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recommendationservice-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-recommendationservice-noagent
+    app.kubernetes.io/component: recommendationservice-noagent
+  ports:
+    - name: grpc
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-noagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-frontend-noagent
+      app.kubernetes.io/component: frontend-noagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-frontend-noagent
+        app.kubernetes.io/component: frontend-noagent
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      containers:
+        - name: frontend-noagent
+          # both look good
+          #image: registry.lab.dynatrace.org/cloudplatform/hipster-shop-frontend
+          image: otel/demo:VERSION_TO_REPLACE-frontend
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4317"
+            - name: OTLP_CLIENT_EXPORTER_ENDPOINT
+              value:  "http://localhost:4318"
+            - name: FRONTEND_ADDR
+              value: :8080
+            - name: PRODUCT_CATALOG_SERVICE_ADDR
+              value: "productcatalogservice-noagent:8080"
+            - name: CURRENCY_SERVICE_ADDR
+              value: "currencyservice-noagent:8080"
+            - name: CART_SERVICE_ADDR
+              value: "cartservice-noagent:8080"
+            - name: RECOMMENDATION_SERVICE_ADDR
+              value: "recommendationservice-noagent:8080"
+            - name: SHIPPING_SERVICE_ADDR
+              value: "shippingservice-noagent:8080"
+            - name: CHECKOUT_SERVICE_ADDR
+              value: "checkoutservice-noagent:8080"
+            - name: AD_SERVICE_ADDR
+              value: "adservice-noagent:8080"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-frontend-noagent
+    app.kubernetes.io/component: frontend-noagent
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8080
+    - name: otlphttp
+      port: 4318
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: onlineboutique-ingress-noagent
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host :  "demo-noagent.IP_TO_REPLACE.nip.io"
+      http:
+        paths:
+          - pathType: ImplementationSpecific
+            path: "/"
+            backend:
+              service:
+                name: frontend-noagent
+                port:
+                  number: 80
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: paymentservice-noagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-paymentservice-noagent
+      app.kubernetes.io/component: paymentservice-noagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-paymentservice-noagent
+        app.kubernetes.io/component: paymentservice-noagent
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: paymentservice-noagent
+          image: otel/demo:VERSION_TO_REPLACE-paymentservice
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4317"
+            - name: PAYMENT_SERVICE_PORT
+              value: "8080"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: paymentservice-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-paymentservice-noagent
+    app.kubernetes.io/component: paymentservice-noagent
+  ports:
+    - name: grpc
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: productcatalogservice-noagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-productcatalogservice-noagent
+      app.kubernetes.io/component: productcatalogservice-noagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-productcatalogservice-noagent
+        app.kubernetes.io/component: productcatalogservice-noagent
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: productcatalogservice-noagent
+          # image: registry.lab.dynatrace.org/cloudplatform/hipster-shop-productcatalogservice
+          image: otel/demo:VERSION_TO_REPLACE-productcatalogservice
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: PRODUCT_CATALOG_SERVICE_PORT
+              value: "8080"
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4317"
+            - name: FEATURE_FLAG_GRPC_SERVICE_ADDR
+              value: "featureflagservice-noagent:50053"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: productcatalogservice-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-productcatalogservice-noagent
+    app.kubernetes.io/component: productcatalogservice-noagent
+  ports:
+    - name: grpc
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cartservice-noagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-cartservice-noagent
+      app.kubernetes.io/component: cartservice-noagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-cartservice-noagent
+        app.kubernetes.io/component: cartservice-noagent
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: cartservice-noagent
+          image: otel/demo:VERSION_TO_REPLACE-cartservice
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_URLS
+              value: http://*:8080
+            - name: REDIS_ADDR
+              value: "redis-noagent:6379"
+            - name: PORT
+              value: "8080"
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4317"
+          resources:
+            requests:
+              cpu: 200m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 512Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartservice-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-cartservice-noagent
+    app.kubernetes.io/component: cartservice-noagent
+  ports:
+    - name: grpc
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgeneratorservice-noagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-loadgeneratorservice-noagent
+      app.kubernetes.io/component: loadgeneratorservice-noagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-loadgeneratorservice-noagent
+        app.kubernetes.io/component: loadgeneratorservice-noagent
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: loadgeneratorservice-noagent
+          image: otel/demo:VERSION_TO_REPLACE-loadgenerator
+          imagePullPolicy: Always
+          ports:
+            - name: locust
+              containerPort: 8089
+          env:
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4317"
+            - name: LOCUST_WEB_PORT
+              value: '8089'
+            - name: LOCUST_USERS
+              value: '10'
+            - name: LOCUST_HOST
+              value: http://frontend-noagent
+            - name: LOCUST_HEADLESS
+              value: 'false'
+            - name: LOCUST_AUTOSTART
+              value: 'true'
+            - name: PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION
+              value: "python"
+            - name: FRONTEND_ADDR
+              value: "frontend-noagent"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loadgeneratorservice-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-loadgeneratorservice-noagent
+    app.kubernetes.io/component: loadgeneratorservice-noagent
+  ports:
+    - name: locust
+      port: 8089
+      targetPort: 8089
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: currencyservice-noagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-currencyservice-noagent
+      app.kubernetes.io/component: currencyservice-noagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-currencyservice-noagent
+        app.kubernetes.io/component: currencyservice-noagent
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: currencyservice-noagent
+          image: otel/demo:VERSION_TO_REPLACE-currencyservice
+          imagePullPolicy: Always
+          ports:
+            - name: grpc
+              containerPort: 8080
+          env:
+            - name: CURRENCY_SERVICE_PORT
+              value: '8080'
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4317"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: currencyservice-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-currencyservice-noagent
+    app.kubernetes.io/component: currencyservice-noagent
+  ports:
+    - name: grpc
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shippingservice-noagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-shippingservice-noagent
+      app.kubernetes.io/component: shippingservice-noagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-shippingservice-noagent
+        app.kubernetes.io/component: shippingservice-noagent
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      containers:
+        - name: shippingservice-noagent
+          image: otel/demo:VERSION_TO_REPLACE-shippingservice
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SHIPPING_SERVICE_PORT
+              value: '8080'
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name: OTEL_EXPORTER_OTLP_TRACES_ENDPOINT
+              value: "http://localhost:4317"
+            - name: QUOTE_SERVICE_ADDR
+              value: "http://quoteservice-noagent:8080"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shippingservice-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-shippingservice-noagent
+    app.kubernetes.io/component: shippingservice-noagent
+  ports:
+    - name: grpc
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-noagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-redis-noagent
+      app.kubernetes.io/component: redis-noagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-redis-noagent
+        app.kubernetes.io/component: redis-noagent
+      annotations: # here we annotate the deployment to be scraped by dynatrace
+        prometheus.io/port: '9121'
+        prometheus.io/scrape: 'true'
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      containers:
+        - name: redis-noagent
+          image: redis:alpine
+          ports:
+            - containerPort: 6379
+          env:
+            - name: PORT
+              value: '8080'
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4317"
+          readinessProbe:
+            periodSeconds: 5
+            tcpSocket:
+              port: 6379
+          livenessProbe:
+            periodSeconds: 5
+            tcpSocket:
+              port: 6379
+          volumeMounts:
+            - mountPath: /data
+              name: redis-data
+          resources:
+            limits:
+              memory: 256Mi
+              cpu: 125m
+            requests:
+              cpu: 70m
+              memory: 200Mi
+      volumes:
+        - name: redis-data
+          emptyDir: { }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-redis-noagent
+    app.kubernetes.io/component: redis-noagent
+  ports:
+    - name: redis
+      port: 6379
+      targetPort: 6379
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adservice-noagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-adservice-noagent
+      app.kubernetes.io/component: adservice-noagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-adservice-noagent
+        app.kubernetes.io/component: adservice-noagent
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: adservice-noagent
+          image: otel/demo:VERSION_TO_REPLACE-adservice
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: AD_SERVICE_PORT
+              value: "8080"
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4317"
+          resources:
+            requests:
+              cpu: 200m
+              memory: 180Mi
+            limits:
+              cpu: 300m
+              memory: 300Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adservice-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-adservice-noagent
+    app.kubernetes.io/component: adservice-noagent
+  ports:
+    - name: grpc
+      port: 8080
+      targetPort: 8080
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: featureflagservice
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-featureflagservice-noagent
+      app.kubernetes.io/component: featureflagservice-noagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-featureflagservice-noagent
+        app.kubernetes.io/component: featureflagservice-noagent
+      annotations:
+        sidecar.opentelemetry.io/inject: "true"
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: featureflagservice-noagent
+          image: otel/demo:VERSION_TO_REPLACE-featureflagservice
+          imagePullPolicy: Always
+          ports:
+            - name: grpc
+              containerPort: 50053
+            - name: http
+              containerPort: 8081
+          env:
+            - name: FEATURE_FLAG_GRPC_SERVICE_PORT
+              value: '50053'
+            - name: FEATURE_FLAG_SERVICE_PORT
+              value: '8081'
+            - name: DATABASE_URL
+              value: "ecto://ffs:ffs@ffspostgres-noagent:5432/ffs"
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4318"
+          resources:
+            requests:
+              cpu: 200m
+              memory: 180Mi
+            limits:
+              cpu: 300m
+              memory: 300Mi
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: featureflagservice-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-featureflagservice-noagent
+    app.kubernetes.io/component: featureflagservice-noagent
+  ports:
+    - name: grpc
+      port: 50053
+      targetPort: 50053
+    - name: http
+      port: 8081
+      targetPort: 8081
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ffspostgres-noagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-ffsPostgres-noagent
+      app.kubernetes.io/component: ffspostgres-noagent
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-ffsPostgres-noagent
+        app.kubernetes.io/component: ffspostgres-noagent
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: ffspostgres-noagent
+          image: cimg/postgres:14.2
+          imagePullPolicy: Always
+          ports:
+            - name: postgres
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              value: ffs
+            - name: POSTGRES_PASSWORD
+              value: ffs
+            - name: POSTGRES_USER
+              value: ffs
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4317"
+          resources:
+            requests:
+              cpu: 200m
+              memory: 180Mi
+            limits:
+              cpu: 300m
+              memory: 300Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ffspostgres-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-ffsPostgres-noagent
+    app.kubernetes.io/component: ffspostgres-noagent
+  ports:
+    - name: postgres
+      port: 5432
+      targetPort: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quoteservice-noagent
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: otel-demo-noagent
+      app.kubernetes.io/instance: otel-demo-quoteservice-noagent
+      app.kubernetes.io/component: quoteservice
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: otel-demo-noagent
+        app.kubernetes.io/instance: otel-demo-quoteservice-noagent
+        app.kubernetes.io/component: quoteservice-noagent
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+        - name: quoteservice-noagent
+          image: otel/demo:VERSION_TO_REPLACE-quoteservice
+          imagePullPolicy: Always
+          ports:
+            - name: quote
+              containerPort: 8080
+          env:
+            - name: QUOTE_SERVICE_PORT
+              value: "8080"
+            - name: OTEL_SERVICE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: 'metadata.labels[''app.kubernetes.io/component'']'
+            - name: OTEL_K8S_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: OTEL_K8S_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+            - name: OTEL_K8S_POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            - name: OTEL_RESOURCE_ATTRIBUTES
+              value: service.name=$(OTEL_SERVICE_NAME),k8s.namespace.name=$(OTEL_K8S_NAMESPACE),k8s.node.name=$(OTEL_K8S_NODE_NAME),k8s.pod.name=$(OTEL_K8S_POD_NAME)
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://localhost:4317"
+            - name: OTEL_TRACES_SAMPLER
+              value: parentbased_always_on
+            - name: OTEL_TRACES_EXPORTER
+              value: otlp
+            - name: OTEL_EXPORTER_OTLP_TRACES_PROTOCOL
+              value: grpc
+            - name: OTEL_PHP_TRACES_PROCESSOR
+              value: simple
+          resources:
+            requests:
+              cpu: 200m
+              memory: 180Mi
+            limits:
+              cpu: 300m
+              memory: 300Mi
+  ----
+apiVersion: v1
+kind: Service
+metadata:
+  name: quoteservice-noagent
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: otel-demo-noagent
+    app.kubernetes.io/instance: otel-demo-quoteservice-noagent
+    app.kubernetes.io/component: quoteservice-noagent
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080
+---
