@@ -157,12 +157,12 @@ sed -i "s,DT_URL_TO_REPLACE,$DTURL," kubernetes-manifests/openTelemetry-manifest
 sed -i "s,DT_TOKEN_TO_REPLACE,$DTTOKEN," kubernetes-manifests/openTelemetry-manifest.yaml
 kubectl apply -f kubernetes-manifests/rbac.yaml
 kubectl apply -f kubernetes-manifests/openTelemetry-manifest.yaml
-
+kubectl apply -f grafana/servicemonitor.yaml
 
 #Deploy demo Application
 echo "Deploying otel-demo"
-sed -i "s,DT_TOKEN_TO_REPLACE,$DTTOKEN," kubernetes-manifests/K8sdemo.yaml
-sed -i "s,DT_TOKEN_TO_REPLACE,$DTTOKEN," kubernetes-manifests/K8sdemo_noagent.yaml
+sed -i "s,VERSION_TO_REPLACE,$VERSION," kubernetes-manifests/K8sdemo.yaml
+sed -i "s,VERSION_TO_REPLACE,$VERSION," kubernetes-manifests/K8sdemo_noagent.yaml
 kubectl create ns otel-demo
 kubectl annotate ns otel-demo chaos-mesh.org/inject=enabled
 kubectl apply -f kubernetes-manifests/openTelemetry-sidecar.yaml -n  otel-demo
