@@ -121,9 +121,12 @@ echo "Deploying Cert Manager ( for OpenTelemetry Operator)"
 kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.6.1/cert-manager.yaml
 # Wait for pod webhook started
 kubectl wait pod -l app.kubernetes.io/component=webhook -n cert-manager --for=condition=Ready --timeout=2m
+
 # Deploy the opentelemetry operator
 echo "Deploying the OpenTelemetry Operator"
 kubectl apply -f https://github.com/open-telemetry/opentelemetry-operator/releases/latest/download/opentelemetry-operator.yaml
+
+
 #Deploy Prometheus Operator
 echo "start depploying Prometheus"
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
