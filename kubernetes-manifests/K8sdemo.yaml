@@ -685,24 +685,6 @@ spec:
       port: 8089
       targetPort: 8089
 ---
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: locust-ingress
-spec:
-  ingressClassName: nginx
-  rules:
-    - host :  "locust.IP_TO_REPLACE.nip.io"
-      http:
-        paths:
-          - pathType: ImplementationSpecific
-            path: "/"
-            backend:
-              service:
-                name: loadgeneratorservice
-                port:
-                  number: 8089
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
