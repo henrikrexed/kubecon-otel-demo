@@ -30,6 +30,6 @@ subjects:
     name: account-otel-demo-manager
     namespace: otel-demo
 roleRef:
-  kind: Role
+  kind: ClusterRole
   name: role-otel-demo-manager
   apiGroup: rbac.authorization.k8s.io
